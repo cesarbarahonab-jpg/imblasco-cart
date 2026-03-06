@@ -41,6 +41,12 @@ app.get("/cart", (req, res) => {
     res.json(cart);
 });
 
+app.get("/cart-count", (req, res) => {
+    res.json({
+        count: cart.length
+    });
+});
+
 app.get("/clear-cart", (req, res) => {
     cart = [];
     res.json({
