@@ -5,6 +5,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
 let cart = [];
 
 app.get("/", (req, res) => {
@@ -16,6 +17,28 @@ app.get("/test", (req, res) => {
         status: "ok",
         message: "conexion carrito funcionando"
     });
+});
+
+/* AGREGAR PRODUCTO AL CARRITO */
+app.post("/add-to-cart", (req, res) => {
+
+    const { product_id, quantity } = req.body;
+
+    cart.push({
+        product_id,
+        quantity
+    });
+
+    res.json({
+        status: "ok",
+        cart
+    });
+
+});
+
+/* VER CARRITO */
+app.get("/cart", (req, res) => {
+    res.json(cart);
 });
 
 const PORT = process.env.PORT || 3000;
