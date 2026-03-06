@@ -41,6 +41,14 @@ app.get("/cart", (req, res) => {
     res.json(cart);
 });
 
+app.get("/clear-cart", (req, res) => {
+    cart = [];
+    res.json({
+        status:"ok",
+        message:"carrito vaciado"
+    });
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
