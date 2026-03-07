@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let cart = [];
+let carts = {};
 
 app.get("/", (req, res) => {
     res.send("imblasco cart backend activo");
