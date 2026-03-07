@@ -23,12 +23,19 @@ app.get("/test", (req, res) => {
 /* AGREGAR PRODUCTO AL CARRITO */
 app.post("/add-to-cart", (req, res) => {
 
-    const { user_id, product_id, quantity } = req.body;
+    const { user_id, variation_id, quantity } = req.body;
 
     if (!user_id) {
         return res.status(400).json({
             status: "error",
             message: "user_id requerido"
+        });
+    }
+
+    if (!variation_id) {
+        return res.status(400).json({
+            status: "error",
+            message: "variation_id requerido"
         });
     }
 
@@ -38,12 +45,12 @@ app.post("/add-to-cart", (req, res) => {
 
     const cart = carts[user_id];
 
-    const existing = cart.find(p => p.product_id === product_id);
+    const existing = cart.find(p => p.variation_id === variation_id);
 
     if (existing) {
         existing.quantity += quantity;
     } else {
-        cart.push({ product_id, quantity });
+        cart.push({ variation_id, quantity });
     }
 
     res.json({
@@ -70,7 +77,7 @@ app.get("/cart/:user_id", (req, res) => {
 /* ELIMINAR PRODUCTO DEL CARRITO */
 app.post("/remove-from-cart", (req, res) => {
 
-    const { user_id, product_id } = req.body;
+    const { user_id, variation_id } = req.body;
 
     if (!carts[user_id]) {
         return res.json({
@@ -80,7 +87,7 @@ app.post("/remove-from-cart", (req, res) => {
     }
 
     carts[user_id] = carts[user_id].filter(
-        p => p.product_id !== product_id
+        p => p.variation_id !== variation_id
     );
 
     res.json({
