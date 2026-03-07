@@ -1,23 +1,26 @@
 const express = require("express");
 const cors = require("cors");
-const fetch = require("node-fetch");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+/* carrito por usuario */
 let carts = {};
 
-/* URL API WooCommerce */
-const WC_API = "https://imblasco.cl/wp-json/wc/store/v1/products";
-
-/* HOME */
 app.get("/", (req, res) => {
     res.send("imblasco cart backend activo");
 });
 
-/* AGREGAR AL CARRITO */
+app.get("/test", (req, res) => {
+    res.json({
+        status: "ok",
+        message: "conexion carrito funcionando"
+    });
+});
+
+/* AGREGAR PRODUCTO AL CARRITO */
 app.post("/add-to-cart", (req, res) => {
 
     const { user_id, variation_id, quantity } = req.body;
@@ -58,45 +61,15 @@ app.post("/add-to-cart", (req, res) => {
 });
 
 /* VER CARRITO */
-app.get("/cart/:user_id", async (req, res) => {
+app.get("/cart/:user_id", (req, res) => {
 
     const user_id = req.params.user_id;
 
     const cart = carts[user_id] || [];
 
-    const result = [];
-
-    for (const item of cart) {
-
-        try {
-
-            const r = await fetch(`${WC_API}?variation=${item.variation_id}`);
-            const data = await r.json();
-
-            if (data.length > 0) {
-
-                const p = data[0];
-
-                result.push({
-                    variation_id: item.variation_id,
-                    quantity: item.quantity,
-                    name: p.name,
-                    price: p.prices.price,
-                    image: p.images[0]?.src,
-                    sku: p.sku
-                });
-
-            }
-
-        } catch (err) {
-            console.log(err);
-        }
-
-    }
-
     res.json({
         status: "ok",
-        cart: result
+        cart
     });
 
 });
@@ -149,7 +122,7 @@ app.get("/cart-count/:user_id", (req, res) => {
 
 });
 
-/* VACIAR */
+/* VACIAR CARRITO */
 app.get("/clear-cart/:user_id", (req, res) => {
 
     const user_id = req.params.user_id;
