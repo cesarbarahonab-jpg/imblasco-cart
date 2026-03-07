@@ -44,6 +44,20 @@ app.get("/cart", (req, res) => {
     res.json(cart);
 });
 
+/* ELIMINAR PRODUCTO DEL CARRITO */
+app.post("/remove-from-cart", (req, res) => {
+
+    const { product_id } = req.body;
+
+    cart = cart.filter(p => p.product_id !== product_id);
+
+    res.json({
+        status: "ok",
+        cart
+    });
+
+});
+
 app.get("/cart-count", (req, res) => {
     res.json({
         count: cart.reduce((total, p) => total + p.quantity, 0)
