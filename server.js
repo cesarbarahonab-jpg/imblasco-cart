@@ -24,10 +24,13 @@ app.post("/add-to-cart", (req, res) => {
 
     const { product_id, quantity } = req.body;
 
-    cart.push({
-        product_id,
-        quantity
-    });
+    const existing = cart.find(p => p.product_id === product_id);
+
+    if(existing){
+        existing.quantity += quantity;
+    }else{
+        cart.push({ product_id, quantity });
+    }
 
     res.json({
         status: "ok",
@@ -43,7 +46,7 @@ app.get("/cart", (req, res) => {
 
 app.get("/cart-count", (req, res) => {
     res.json({
-        count: cart.length
+        count: cart.reduce((total, p) => total + p.quantity, 0)
     });
 });
 
