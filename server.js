@@ -22,7 +22,20 @@ app.get("/test", (req, res) => {
 /* AGREGAR PRODUCTO AL CARRITO */
 app.post("/add-to-cart", (req, res) => {
 
-    const { product_id, quantity } = req.body;
+    const { user_id, product_id, quantity } = req.body;
+
+    if(!user_id){
+        return res.status(400).json({
+            status: "error",
+            message: "user_id requerido"
+        });
+    }
+
+    if(!carts[user_id]){
+        carts[user_id] = [];
+    }
+
+    const cart = carts[user_id];
 
     const existing = cart.find(p => p.product_id === product_id);
 
