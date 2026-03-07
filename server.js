@@ -1,26 +1,23 @@
 const express = require("express");
 const cors = require("cors");
+const fetch = require("node-fetch");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-/* carrito por usuario */
 let carts = {};
 
+/* URL API WooCommerce */
+const WC_API = "https://imblasco.cl/wp-json/wc/store/v1/products";
+
+/* HOME */
 app.get("/", (req, res) => {
     res.send("imblasco cart backend activo");
 });
 
-app.get("/test", (req, res) => {
-    res.json({
-        status: "ok",
-        message: "conexion carrito funcionando"
-    });
-});
-
-/* AGREGAR PRODUCTO AL CARRITO */
+/* AGREGAR AL CARRITO */
 app.post("/add-to-cart", (req, res) => {
 
     const { user_id, variation_id, quantity } = req.body;
@@ -61,23 +58,53 @@ app.post("/add-to-cart", (req, res) => {
 });
 
 /* VER CARRITO */
-app.get("/cart/:user_id", (req, res) => {
+app.get("/cart/:user_id", async (req, res) => {
 
     const user_id = req.params.user_id;
 
     const cart = carts[user_id] || [];
 
+    const result = [];
+
+    for (const item of cart) {
+
+        try {
+
+            const r = await fetch(`${WC_API}?variation=${item.variation_id}`);
+            const data = await r.json();
+
+            if (data.length > 0) {
+
+                const p = data[0];
+
+                result.push({
+                    variation_id: item.variation_id,
+                    quantity: item.quantity,
+                    name: p.name,
+                    price: p.prices.price,
+                    image: p.images[0]?.src,
+                    sku: p.sku
+                });
+
+            }
+
+        } catch (err) {
+            console.log(err);
+        }
+
+    }
+
     res.json({
         status: "ok",
-        cart
+        cart: result
     });
 
 });
 
-/* ELIMINAR PRODUCTO DEL CARRITO */
-app.post("/remove-from-cart", (req, res) => {
+/* CAMBIAR CANTIDAD */
+app.post("/update-cart", (req, res) => {
 
-    const { user_id, variation_id } = req.body;
+    const { user_id, variation_id, quantity } = req.body;
 
     if (!carts[user_id]) {
         return res.json({
@@ -86,9 +113,19 @@ app.post("/remove-from-cart", (req, res) => {
         });
     }
 
-    carts[user_id] = carts[user_id].filter(
-        p => p.variation_id !== variation_id
-    );
+    const item = carts[user_id].find(p => p.variation_id === variation_id);
+
+    if (item) {
+
+        item.quantity += quantity;
+
+        if (item.quantity <= 0) {
+            carts[user_id] = carts[user_id].filter(
+                p => p.variation_id !== variation_id
+            );
+        }
+
+    }
 
     res.json({
         status: "ok",
@@ -97,7 +134,7 @@ app.post("/remove-from-cart", (req, res) => {
 
 });
 
-/* CONTAR PRODUCTOS DEL CARRITO */
+/* CONTAR PRODUCTOS */
 app.get("/cart-count/:user_id", (req, res) => {
 
     const user_id = req.params.user_id;
@@ -112,7 +149,7 @@ app.get("/cart-count/:user_id", (req, res) => {
 
 });
 
-/* VACIAR CARRITO */
+/* VACIAR */
 app.get("/clear-cart/:user_id", (req, res) => {
 
     const user_id = req.params.user_id;
