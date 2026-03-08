@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 /* carrito por usuario */
-let carts = {};
+const carts = {};
 
 app.get("/", (req, res) => {
     res.send("imblasco cart backend activo");
@@ -48,9 +48,9 @@ app.post("/add-to-cart", (req, res) => {
     const existing = cart.find(p => p.variation_id === variation_id);
 
     if (existing) {
-        existing.quantity += quantity;
+        existing.quantity += Number(quantity);
     } else {
-        cart.push({ variation_id, quantity });
+        cart.push({ variation_id, quantity: Number(quantity) });
     }
 
     res.json({
@@ -77,7 +77,7 @@ app.get("/cart/:user_id", (req, res) => {
 /* CAMBIAR CANTIDAD */
 app.post("/update-cart", (req, res) => {
 
-    const { user_id, variation_id, quantity } = req.body;
+    const { user_id, variation_id, quantity = 1 } = req.body;
 
     if (!carts[user_id]) {
         return res.json({
@@ -90,7 +90,7 @@ app.post("/update-cart", (req, res) => {
 
     if (item) {
 
-        item.quantity += quantity;
+        item.quantity += Number(quantity);
 
         if (item.quantity <= 0) {
             carts[user_id] = carts[user_id].filter(
