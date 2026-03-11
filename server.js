@@ -3,6 +3,10 @@ const cors = require("cors");
 const fs = require("fs");
 const CART_FILE = "./carts.json";
 
+function guardarCarritos() {
+    fs.writeFileSync(CART_FILE, JSON.stringify(carts, null, 2));
+}
+
 const app = express();
 
 app.use(cors());
@@ -63,6 +67,8 @@ app.post("/add-to-cart", (req, res) => {
         cart.push({ variation_id, quantity: Number(quantity) });
     }
 
+    guardarCarritos();
+
     res.json({
         status: "ok",
         cart
@@ -109,7 +115,7 @@ app.post("/update-cart", (req, res) => {
         }
 
     }
-
+    guardarCarritos();
     res.json({
         status: "ok",
         cart: carts[user_id]
@@ -138,7 +144,7 @@ app.get("/clear-cart/:user_id", (req, res) => {
     const user_id = req.params.user_id;
 
     carts[user_id] = [];
-
+    guardarCarritos();
     res.json({
         status: "ok",
         message: "carrito vaciado"
