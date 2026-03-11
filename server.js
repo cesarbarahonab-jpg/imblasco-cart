@@ -161,7 +161,8 @@ const html = req.body.html;
 try {
 
 const browser = await puppeteer.launch({
-args:["--no-sandbox","--disable-setuid-sandbox"]
+args:["--no-sandbox","--disable-setuid-sandbox"],
+executablePath:"/usr/bin/chromium-browser"
 });
 
 const page = await browser.newPage();
