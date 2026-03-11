@@ -153,6 +153,46 @@ app.get("/clear-cart/:user_id", (req, res) => {
 
 });
 
+/* maneja pdf */
+app.post("/cotizacion-pdf", async (req, res) => {
+
+const html = req.body.html;
+
+try {
+
+const browser = await puppeteer.launch({
+args:["--no-sandbox","--disable-setuid-sandbox"]
+});
+
+const page = await browser.newPage();
+
+await page.setContent(html,{waitUntil:"networkidle0"});
+
+const pdf = await page.pdf({
+format:"A4",
+printBackground:true
+});
+
+await browser.close();
+
+res.set({
+"Content-Type":"application/pdf",
+"Content-Disposition":"attachment; filename=cotizacion.pdf"
+});
+
+res.send(pdf);
+
+}catch(err){
+
+console.error(err);
+res.status(500).send("error generando pdf");
+
+}
+
+});
+
+/* fin maneja pdf */
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
