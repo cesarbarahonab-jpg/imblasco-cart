@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
+const CART_FILE = "./carts.json";
 
 const app = express();
 
@@ -7,7 +9,15 @@ app.use(cors());
 app.use(express.json());
 
 /* carrito por usuario */
-const carts = {};
+let carts = {};
+
+if (fs.existsSync(CART_FILE)) {
+    try {
+        carts = JSON.parse(fs.readFileSync(CART_FILE));
+    } catch (err) {
+        carts = {};
+    }
+}
 
 app.get("/", (req, res) => {
     res.send("imblasco cart backend activo");
