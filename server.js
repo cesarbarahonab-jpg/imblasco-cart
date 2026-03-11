@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
+const puppeteer = require("puppeteer");
 const CART_FILE = "./carts.json";
 
 function guardarCarritos() {
